@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Horário</title>
+</h:head>
+<h:body>
+	<p:growl id="mensagem" />
+
+	<h:form id="formListagem">
+		<p:panel header="Horario - Listagem">
+			<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+				paginator="true" value="#{horarioBean.horarios}" var="horario"
+				rows="5">
+				<f:facet name="header">
+					<p:commandButton value="Novo" oncomplete="PF('dialogo').show();"
+						actionListener="#{horarioBean.novo}" update=":formCadastro:painel" />
+				</f:facet>
+
+				<p:column headerText="Data" sortBy="#{horarioBean.horario.data}"
+					filterBy="#{horario.data}">
+					<h:outputText value="#{horario.data}" />
+				</p:column>
+
+				<p:column headerText="Horario"
+					filterBy="#{horario.horario}"
+					sortBy="#{horario.horario}">
+					<h:outputText value="#{horario.horario}" />
+				</p:column>
+
+				<p:column headerText="Profissional"
+					filterBy="#{horario.agenda.funcionario.nome}"
+					sortBy="#{horario.agenda.funcionario.nome}">
+					<h:outputText
+						value="#{horario.agenda.funcionario.nome}" />
+				</p:column>
+				
+				<p:column headerText="Ordem de Serviço"
+					filterBy="#{horario.ordemServico.id}"
+					sortBy="#{horario.ordemServico.id}">
+					<h:outputText
+						value="#{horario.ordemServico.id}" />
+				</p:column>
+				
+				<p:column headerText="Animal"
+					filterBy="#{horario.ordemServico.animal.nome}"
+					sortBy="#{horario.ordemServico.animal.nome}">
+					<h:outputText
+						value="#{horario.ordemServico.animal.nome}" />
+				</p:column>
+				
+				<p:column headerText="Dono"
+					filterBy="#{horario.ordemServico.animal.dono.nome}"
+					sortBy="#{horario.ordemServico.animal.dono.nome}">
+					<h:outputText
+						value="#{horario.ordemServico.animal.dono.nome}" />
+				</p:column>
+				
+				<p:column headerText="Valor"
+					filterBy="#{horario.ordemServico.servico.valorUniario}"
+					sortBy="#{horario.ordemServico.servico.valorUniario}">
+					<h:outputText value="#{horario.ordemServico.servico.valorUniario}">
+						<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{horarioBean.excluir}"
+						update=":mensagem :formListagem:tabela">
+						<p:confirm header="Confirmação"
+							message="Deseja excluir o horario?" icon="ui-icon-alert" />
+						<f:attribute name="horarioSelecionado" value="#{horario}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{horarioBean.editar}"
+						update=":formCadastro:painel" oncomplete="PF('dialogo').show();">
+						<f:attribute name="horarioSelecionado" value="#{horario}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog global="true">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+		</p:panel>
+		<br />
+		<p:button outcome="index" value="Voltar">
+			<f:param name="productId" value="10" />
+		</p:button>
+	</h:form>
+
+	<p:dialog header="Horario - Cadastro" widgetVar="dialogo"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formCadastro">
+			<h:panelGrid id="painel" columns="2">
+
+				<p:outputLabel value="Data:" />
+				<p:calendar value="#{horarioBean.horario.data}" required="true"
+					requiredMessage="O campo 'Data' é obrigatório" size="10"
+					locale="pt_BR" />
+
+				<p:outputLabel value="Hora" />
+				<p:inputMask maxlength="50" mask="99:99" size="30"
+					value="#{horarioBean.horario.horario}" required="true"
+					requiredMessage="O campo Horario é obrigatório" />
+
+				<p:outputLabel value="Agenda:" />
+				<p:selectOneMenu filter="true" value="#{horarioBean.horario.agenda}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="O campo 'Agenda' é obrigatório">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione uma Agenda" />
+					<f:selectItems value="#{horarioBean.agendas}" var="agenda"
+						itemValue="#{agenda}" itemLabel="#{agenda.funcionario.nome}" />
+				</p:selectOneMenu>
+
+				<p:outputLabel value="Servico:" />
+				<p:selectOneMenu filter="true"
+					value="#{horarioBean.horario.ordemServico}"
+					converter="omnifaces.SelectItemsConverter">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione uma Ordem de Servico" />
+					<f:selectItems value="#{horarioBean.ordemServicos}" var="ordemServico"
+						itemValue="#{ordemServicos}" itemLabel="#{ordemServico.id} - #{ordemServico.servico.descricao}" />
+				</p:selectOneMenu>
+
+			</h:panelGrid>
+
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{horarioBean.salvar}"
+					update=":mensagem :formCadastro:painel :formListagem:tabela" />
+				<p:commandButton value="Fechar" oncomplete="PF('dialogo').hide();" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+
+</h:body>
+</html>

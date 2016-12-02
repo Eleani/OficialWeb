@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Animal</title>
+</h:head>
+<h:body>
+	<p:growl id="mensagem" />
+
+	<h:form id="formListagem">
+		<p:panel header="Ordem de Servico - Listagem">
+			<p:dataTable id="tabela" emptyMessage="Nenhum registro encontrado."
+				paginator="true" value="#{ordemServicoBean.ordemServicos}"
+				var="ordemServico" rows="5">
+				<f:facet name="header">
+					<p:commandButton value="Novo" oncomplete="PF('dialogo').show();"
+						actionListener="#{ordemServicoBean.novo}"
+						update=":formCadastro:painel" />
+				</f:facet>
+
+				<p:column headerText="Ordem de Serviço" sortBy="#{ordemServico.id}"
+					filterBy="#{ordemServico.id}">
+					<h:outputText value="#{ordemServico.id}" />
+				</p:column>
+
+				<p:column headerText="Animal" filterBy="#{ordemServico.animal.nome}"
+					sortBy="#{ordemServico.animal.nome}">
+					<h:outputText value="#{ordemServico.animal.nome}" />
+				</p:column>
+				
+				<p:column headerText="Dono" filterBy="#{ordemServico.animal.dono.nome}"
+					sortBy="#{ordemServico.animal.dono.nome}">
+					<h:outputText value="#{ordemServico.animal.dono.nome}" />
+				</p:column>
+				
+				<p:column headerText="Funcionário" filterBy="#{ordemServico.funcionario.nome}"
+					sortBy="#{ordemServico.funcionario.nome}">
+					<h:outputText value="#{ordemServico.funcionario.nome}" />
+				</p:column>
+
+				<p:column headerText="Serviço" filterBy="#{ordemServico.servico.descricao}"
+					sortBy="#{ordemServico.servico.descricao}">
+					<h:outputText value="#{ordemServico.servico.descricao}" />
+				</p:column>
+				
+				<p:column headerText="Valor Serviço" filterBy="#{ordemServico.servico.valorUniario}"
+					sortBy="#{ordemServico.servico.valorUniario}">
+					<h:outputText value="#{ordemServico.servico.valorUniario}">
+						<f:convertNumber locale="pt_BR" minFractionDigits="2" />
+					</h:outputText>
+					
+				</p:column>
+
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						actionListener="#{ordemServicoBean.excluir}"
+						update=":mensagem :formListagem:tabela">
+						<p:confirm header="Confirmação"
+							message="Deseja excluir a Ordem de Serviço?" icon="ui-icon-alert" />
+						<f:attribute name="ordemServicoSelecionado" value="#{ordemServico}" />
+					</p:commandButton>
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{ordemServicoBean.editar}"
+						update=":formCadastro:painel" oncomplete="PF('dialogo').show();">
+						<f:attribute name="ordemServicoSelecionado" value="#{ordemServico}" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+
+			<p:confirmDialog global="true">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+		</p:panel>
+		<br />
+		<p:button outcome="index" value="Voltar">
+			<f:param name="productId" value="10" />
+		</p:button>
+	</h:form>
+
+	<p:dialog header="Ordem de Servico - Cadastro" widgetVar="dialogo"
+		draggable="false" resizable="false" modal="true" closable="false">
+		<h:form id="formCadastro">
+			<h:panelGrid id="painel" columns="2">
+
+				<p:outputLabel for="animal" value="Animal:" />
+				<p:selectOneMenu id="animal" filter="true"
+					value="#{ordemServicoBean.ordemServico.animal}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="O campo 'Raca' é obrigatório">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um animal" />
+					<f:selectItems value="#{ordemServicoBean.animais}" var="animal"
+						itemValue="#{animal}" itemLabel="#{animal.nome}" />
+				</p:selectOneMenu>
+				
+				<p:outputLabel for="funcionario" value="Funcionário:" />
+				<p:selectOneMenu id="funcionario" filter="true"
+					value="#{ordemServicoBean.ordemServico.funcionario}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="O campo 'Funcionario' é obrigatório">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um funcionario" />
+					<f:selectItems value="#{ordemServicoBean.funcionarios}" var="funcionario"
+						itemValue="#{funcionario}" itemLabel="#{funcionario.nome}" />
+				</p:selectOneMenu>
+				
+				<p:outputLabel for="servico" value="Serviço:" />
+				<p:selectOneMenu id="servico" filter="true"
+					value="#{ordemServicoBean.ordemServico.servico}"
+					converter="omnifaces.SelectItemsConverter" required="true"
+					requiredMessage="O campo 'Serviço' é obrigatório">
+					<f:selectItem noSelectionOption="true"
+						itemLabel="Selecione um servico" />
+					<f:selectItems value="#{ordemServicoBean.servicos}" var="servico"
+						itemValue="#{servico}" itemLabel="#{servico.descricao}" />
+				</p:selectOneMenu>
+				
+
+			</h:panelGrid>
+
+			<h:panelGrid columns="2">
+				<p:commandButton value="Salvar"
+					actionListener="#{ordemServicoBean.salvar}"
+					update=":mensagem :formCadastro:painel :formListagem:tabela" />
+				<p:commandButton value="Fechar" oncomplete="PF('dialogo').hide();" />
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+
+</h:body>
+</html>
